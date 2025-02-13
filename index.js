@@ -1,10 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const { google } = require("googleapis");
+const numeral = require("numeral");
 
 const app = express();
 const PORT = 5000;
-console.log(Math.round(500))
+console.log(Math.round(500).toFixed(2));
 // Load Google Sheets API credentials
 const auth = new google.auth.GoogleAuth({
   keyFile: "google-key.json",
@@ -49,7 +50,13 @@ app.get("/formatted-data", async (req, res) => {
     column_values: {
       due_date: row[1] || "N/A",
       budget: {
-        value: row[2] ? parseFloat(row[2].replace("$", "")) : 0.0,
+        value: row[2]
+          ? Number(
+              (Math.round(Number(row[2].replace("$", "")) * 100) / 100).toFixed(
+                2
+              )
+            ) //store nuber but displays as string like "500.00". You can check console log.
+          : parseFloat(Math.round(0).toFixed(2)),
         type: "currency",
       },
       progress: row[3] ? parseInt(row[3].replace("%", ""), 10) : 0,
